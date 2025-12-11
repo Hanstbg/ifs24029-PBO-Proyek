@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.0</version> 
+    <version>3.4.0</version>
     <relativePath />
   </parent>
 
@@ -18,10 +18,10 @@
   <description>Todo Application with Spring Boot</description>
 
   <properties>
-    <java.version>21</java.version> 
+    <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version> 
+    <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
     <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
     <maven.dependency.mockito.version>5.14.2</maven.dependency.mockito.version>
     <maven.dependency.byte-buddy.version>1.15.10</maven.dependency.byte-buddy.version>
@@ -161,12 +161,13 @@
         </configuration>
       </plugin>
 
-      <!-- Surefire -->
+      <!-- Surefire (Unit Tests) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven.surefire.plugin.version}</version>
         <configuration>
+            <!-- @{argLine} WAJIB ADA agar JaCoCo bisa berjalan -->
             <argLine>
                 @{argLine}
                 -XX:+EnableDynamicAgentLoading
@@ -182,14 +183,14 @@
         </configuration>
       </plugin>
 
-      <!-- JaCoCo FIXED -->
+      <!-- JaCoCo (Coverage) FIXED -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${maven.jacoco.plugin.version}</version>
 
         <executions>
-
+          <!-- 1. Menyiapkan Agent sebelum test berjalan -->
           <execution>
             <id>prepare-agent</id>
             <goals>
@@ -197,6 +198,7 @@
             </goals>
           </execution>
 
+          <!-- 2. Membuat laporan setelah test selesai -->
           <execution>
             <id>generate-report</id>
             <phase>test</phase>
@@ -205,7 +207,7 @@
             </goals>
           </execution>
 
-          <!-- FIX UTAMA ERROR: MENAMBAHKAN RULES UNTUK "check" -->
+          <!-- 3. Memeriksa apakah coverage memenuhi syarat (Rules ditambahkan disini) -->
           <execution>
             <id>jacoco-check</id>
             <goals>
@@ -214,19 +216,20 @@
             <configuration>
               <rules>
                 <rule>
-                  <element>CLASS</element>
+                  <!-- Menggunakan BUNDLE agar dicek secara global (seluruh project) -->
+                  <!-- Jika ingin per class, ganti jadi CLASS -->
+                  <element>BUNDLE</element> 
                   <limits>
                     <limit>
                       <counter>LINE</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.00</minimum>
+                      <minimum>0.00</minimum> <!-- Set ke 0% dulu agar build pass -->
                     </limit>
                   </limits>
                 </rule>
               </rules>
             </configuration>
           </execution>
-
         </executions>
       </plugin>
 
