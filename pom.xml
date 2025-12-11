@@ -30,6 +30,7 @@
   </properties>
 
   <dependencies>
+    <!-- Dependencies sama seperti sebelumnya -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -142,7 +143,7 @@
   <build>
     <plugins>
 
-      <!-- Spring Boot -->
+      <!-- Spring Boot Plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -152,22 +153,16 @@
                 -Xshare:off
                 -Dnet.bytebuddy.experimental=true
                 --add-opens java.base/java.lang=ALL-UNNAMED
-                --add-opens java.base/java.util=ALL-UNNAMED
-                --add-opens java.base/java.io=ALL-UNNAMED
-                --add-opens java.base/java.nio.file=ALL-UNNAMED
-                --add-opens java.base/java.time=ALL-UNNAMED
-                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
             </jvmArguments>
         </configuration>
       </plugin>
 
-      <!-- Surefire (Unit Tests) -->
+      <!-- Surefire Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven.surefire.plugin.version}</version>
         <configuration>
-            <!-- @{argLine} WAJIB ADA agar JaCoCo bisa berjalan -->
             <argLine>
                 @{argLine}
                 -XX:+EnableDynamicAgentLoading
@@ -175,22 +170,34 @@
                 -Dnet.bytebuddy.experimental=true
                 --add-opens java.base/java.lang=ALL-UNNAMED
                 --add-opens java.base/java.util=ALL-UNNAMED
-                --add-opens java.base/java.io=ALL-UNNAMED
-                --add-opens java.base/java.nio.file=ALL-UNNAMED
-                --add-opens java.base/java.time=ALL-UNNAMED
-                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
             </argLine>
         </configuration>
       </plugin>
 
-      <!-- JaCoCo (Coverage) FIXED -->
+      <!-- JaCoCo Plugin -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${maven.jacoco.plugin.version}</version>
 
+        <!-- FIX: PINDAHKAN KONFIGURASI KE SINI (GLOBAL) -->
+        <!-- Agar bisa dibaca baik oleh 'mvn verify' maupun 'mvn jacoco:check' -->
+        <configuration>
+            <rules>
+                <rule>
+                    <element>BUNDLE</element>
+                    <limits>
+                        <limit>
+                            <counter>LINE</counter>
+                            <value>COVEREDRATIO</value>
+                            <minimum>0.00</minimum>
+                        </limit>
+                    </limits>
+                </rule>
+            </rules>
+        </configuration>
+
         <executions>
-          <!-- 1. Menyiapkan Agent sebelum test berjalan -->
           <execution>
             <id>prepare-agent</id>
             <goals>
@@ -198,7 +205,6 @@
             </goals>
           </execution>
 
-          <!-- 2. Membuat laporan setelah test selesai -->
           <execution>
             <id>generate-report</id>
             <phase>test</phase>
@@ -207,28 +213,11 @@
             </goals>
           </execution>
 
-          <!-- 3. Memeriksa apakah coverage memenuhi syarat (Rules ditambahkan disini) -->
           <execution>
             <id>jacoco-check</id>
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-              <rules>
-                <rule>
-                  <!-- Menggunakan BUNDLE agar dicek secara global (seluruh project) -->
-                  <!-- Jika ingin per class, ganti jadi CLASS -->
-                  <element>BUNDLE</element> 
-                  <limits>
-                    <limit>
-                      <counter>LINE</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.00</minimum> <!-- Set ke 0% dulu agar build pass -->
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
-            </configuration>
           </execution>
         </executions>
       </plugin>
