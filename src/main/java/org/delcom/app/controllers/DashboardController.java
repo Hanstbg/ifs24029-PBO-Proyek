@@ -1,10 +1,10 @@
 package org.delcom.app.controllers;
 
 import org.delcom.app.configs.AuthContext;
-import org.delcom.app.entities.BucketList; // Import Entity Baru
+import org.delcom.app.entities.BucketList;
 import org.delcom.app.entities.Perjalanan;
 import org.delcom.app.entities.User;
-import org.delcom.app.services.BucketListService; // Import Service Baru
+import org.delcom.app.services.BucketListService;
 import org.delcom.app.services.FileStorageService;
 import org.delcom.app.services.PerjalananService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class DashboardController {
     private PerjalananService perjalananService;
 
     @Autowired
-    private BucketListService bucketListService; // [BARU] Inject Service Bucket List
+    private BucketListService bucketListService;
 
     @Autowired
     private AuthContext authContext;
@@ -46,7 +46,7 @@ public class DashboardController {
             List<Perjalanan> listPerjalanan = perjalananService.getAllPerjalananByUserId(user.getId());
             if (listPerjalanan == null) listPerjalanan = new ArrayList<>();
 
-            // 2. [BARU] Ambil Data Bucket List untuk Widget Sidebar
+            // 2. Ambil Data Bucket List untuk Widget Sidebar
             List<BucketList> bucketList = bucketListService.getAllByUser(user.getId());
             if (bucketList == null) bucketList = new ArrayList<>();
 
@@ -73,10 +73,7 @@ public class DashboardController {
             // --- Kirim Data ke View ---
             model.addAttribute("user", user);
             model.addAttribute("listPerjalanan", listPerjalanan);
-            
-            // [BARU] Kirim bucketList ke View agar Widget Sidebar muncul datanya
             model.addAttribute("bucketList", bucketList); 
-
             model.addAttribute("totalPerjalanan", listPerjalanan.size());
             
             Object totalLokasiObj = (serviceResult != null) ? serviceResult.get("total_data") : 0;
@@ -89,7 +86,29 @@ public class DashboardController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "error"; // Pastikan file error.html ada, atau ganti return "redirect:/auth/login";
+            return "error"; 
+        }
+    }
+
+    // --- FITUR BARU: DETAIL PAGE ---
+    @GetMapping("/dashboard/detail/{id}")
+    public String viewDetail(@PathVariable UUID id, Model model) {
+        User user = authContext.getAuthUser();
+        if (user == null) return "redirect:/auth/login";
+
+        try {
+            // Mengambil data spesifik berdasarkan ID User dan ID Perjalanan
+            Perjalanan data = perjalananService.getPerjalananById(user.getId(), id);
+            
+            // Kirim data ke view detail
+            model.addAttribute("trip", data);
+            model.addAttribute("user", user); // Agar navbar tetap menampilkan nama user
+            
+            // Return ke file HTML baru: src/main/resources/templates/view/detail-perjalanan.html
+            return "view/detail-perjalanan"; 
+        } catch (Exception e) {
+            // Jika data tidak ditemukan atau bukan milik user
+            return "redirect:/dashboard";
         }
     }
 

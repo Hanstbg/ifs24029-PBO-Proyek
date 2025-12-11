@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${trip.judul} + ' - WorldPass Detail'">Trip Detail</title>
+    <!-- Bootstrap 5 & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-gold: #fbbf24;
+        }
+        body {
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 80%);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+        .serif-font { font-family: 'Playfair Display', serif; }
+        
+        /* Hero Section with Image Blur Background */
+        .hero-section {
+            position: relative;
+            height: 60vh;
+            width: 100%;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .hero-bg {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(0.4);
+            transform: scale(1.05);
+        }
+        .hero-content {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 40px 20px;
+            background: linear-gradient(to top, #020617 10%, transparent);
+        }
+        
+        /* Glass Content Container */
+        .content-container {
+            margin-top: -60px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .meta-badge {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+
+        .text-content {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            color: #cbd5e1;
+            white-space: pre-wrap; /* Agar enter/paragraf terbaca */
+        }
+        
+        .btn-back {
+            position: fixed; top: 30px; left: 30px; z-index: 100;
+            background: rgba(2, 6, 23, 0.6); color: white;
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+        }
+        .btn-back:hover { background: var(--accent-blue); color: #000; transform: scale(1.1); }
+        
+        .action-bar {
+            position: fixed; top: 30px; right: 30px; z-index: 100;
+            display: flex; gap: 10px;
+        }
+        .btn-action {
+            background: rgba(2, 6, 23, 0.6); color: white;
+            padding: 10px 20px; border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none; font-size: 0.9rem;
+            backdrop-filter: blur(5px); transition: 0.3s;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.1); border-color: white; color: white; }
+        .btn-delete:hover { background: rgba(220, 53, 69, 0.2); border-color: #dc3545; color: #dc3545; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Tombol Navigasi Atas -->
+    <a href="/dashboard" class="btn-back" title="Back to Dashboard"><i class="fas fa-arrow-left"></i></a>
+    
+    <div class="action-bar">
+        <a th:href="@{'/dashboard/edit/' + ${trip.id}}" class="btn-action"><i class="fas fa-pen me-2"></i> Edit</a>
+        <a th:href="@{'/dashboard/delete/' + ${trip.id}}" onclick="return confirm('Delete this memory?')" class="btn-action btn-delete"><i class="fas fa-trash me-2"></i> Delete</a>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="hero-section">
+        <!-- Logic Gambar sama seperti dashboard -->
+        <img th:if="${trip.fotoUtama != null && (trip.fotoUtama.startsWith('http') || trip.fotoUtama.startsWith('https'))}" 
+             th:src="${trip.fotoUtama}" class="hero-bg" alt="Cover">
+        <img th:if="${trip.fotoUtama != null && !trip.fotoUtama.startsWith('http') && !trip.fotoUtama.startsWith('https')}" 
+             th:src="@{'/uploads/' + ${trip.fotoUtama}}" class="hero-bg" alt="Cover">
+        <img th:if="${trip.fotoUtama == null || trip.fotoUtama.isEmpty()}" 
+             th:src="'https://source.unsplash.com/random/1600x900/?nature,dark,' + ${trip.lokasi}" class="hero-bg" alt="Default">
+             
+        <div class="hero-content container">
+            <span class="text-warning fw-bold text-uppercase" style="letter-spacing: 3px; font-size: 0.8rem;">WorldPass Journal</span>
+            <h1 class="display-3 fw-bold text-white serif-font mb-2" th:text="${trip.judul}">Journey Title</h1>
+        </div>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="content-container">
+                    
+                    <!-- Metadata Bar -->
+                    <div class="d-flex flex-wrap gap-3 mb-5 border-bottom border-secondary border-opacity-25 pb-4">
+                        <div class="meta-badge">
+                            <i class="fas fa-map-marker-alt"></i> <span th:text="${trip.lokasi}">Location</span>
+                        </div>
+                        <div class="meta-badge" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);">
+                            <i class="far fa-calendar"></i> 
+                            <span th:text="${trip.tanggalMulai}">Start</span> 
+                            <span class="mx-1" th:if="${trip.tanggalSelesai}">-</span> 
+                            <span th:text="${trip.tanggalSelesai}">End</span>
+                        </div>
+                    </div>
+
+                    <!-- Isi Cerita -->
+                    <div class="text-content serif-font">
+                        <p th:text="${trip.deskripsi}">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...
+                        </p>
+                    </div>
+
+                    <!-- Footer Kecil -->
+                    <div class="mt-5 pt-4 text-center">
+                        <i class="fas fa-feather-alt text-muted opacity-25 fa-2x"></i>
+                        <p class="small text-muted mt-2 opacity-50">End of Entry</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

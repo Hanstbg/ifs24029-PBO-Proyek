@@ -55,8 +55,7 @@
             position: sticky; top: 0; z-index: 1000;
         }
         
-        /* --- GLASSMORPHISM UI (Kartu Lain Tetap Kaca) --- */
-        /* Note: .clock-seamless TIDAK dimasukkan kesini agar transparan total */
+        /* --- GLASSMORPHISM UI --- */
         .stat-card, .trip-card, .founder-card, .bucket-widget, .weather-card, .timeline-content-card, .dropdown-menu-dark-custom {
             background: rgba(15, 23, 42, 0.65) !important;
             backdrop-filter: blur(12px) !important;
@@ -67,7 +66,6 @@
 
         /* --- FITUR JAM MENYATU (SEAMLESS) --- */
         .clock-seamless {
-            /* Transparan Total */
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
@@ -79,7 +77,7 @@
         .clock-greeting {
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 4px; /* Letter spacing lebih lebar agar elegan */
+            letter-spacing: 4px;
             color: var(--accent-gold);
             margin-bottom: 0px;
             opacity: 0.9;
@@ -88,15 +86,13 @@
 
         .clock-time {
             font-family: 'Playfair Display', serif;
-            font-size: 5rem; /* Diperbesar agar standout tanpa box */
+            font-size: 5rem;
             font-weight: 700;
             line-height: 1;
-            /* Efek Text Gradient Mewah */
             background: linear-gradient(180deg, #ffffff 20%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
-            /* Drop shadow pada teks agar terbaca jelas di atas partikel */
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); 
         }
 
@@ -112,29 +108,18 @@
         .world-time-strip {
             display: flex;
             justify-content: space-between;
-            /* Garis pemisah yang sangat halus dan memudar di ujung (Gradient Border) */
             border-top: 1px solid rgba(255,255,255,0.1);
             padding-top: 20px;
             width: 90%;
-            margin: 0 auto; /* Tengah */
+            margin: 0 auto;
         }
-        .world-city {
-            text-align: center;
-            width: 33%;
-        }
+        .world-city { text-align: center; width: 33%; }
         .world-city-name {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 1.5px;
-            display: block;
-            margin-bottom: 3px;
+            font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted);
+            letter-spacing: 1.5px; display: block; margin-bottom: 3px;
         }
         .world-city-time {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            font-family: 'Playfair Display', serif;
+            font-size: 1rem; font-weight: 600; color: #e2e8f0; font-family: 'Playfair Display', serif;
         }
 
         /* Statistic Card Specifics */
@@ -173,10 +158,12 @@
             border: 1px solid rgba(56, 189, 248, 0.3); padding: 6px 14px; border-radius: 4px;
             font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;
         }
+        
+        /* TOMBOL AKSI (MATA, EDIT, DELETE) */
         .card-actions { 
             position: absolute; top: 15px; right: 15px; opacity: 0; transition: opacity 0.3s; 
             background: var(--bg-deep); padding: 8px; border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center;
         }
         .trip-card:hover .card-actions { opacity: 1; }
 
@@ -337,10 +324,28 @@
                                 <img th:if="${trip.fotoUtama == null || trip.fotoUtama.isEmpty()}" th:src="'https://source.unsplash.com/random/600x400/?night,city,' + ${trip.lokasi}" class="trip-img" alt="Default">
                                 
                                 <span class="card-category searchable-loc" th:text="${trip.lokasi}">LOCATION</span>
+                                
+                                <!-- ============================ -->
+                                <!-- BAGIAN PERBAIKAN: BUTTONS    -->
+                                <!-- ============================ -->
                                 <div class="card-actions">
-                                    <a th:href="@{'/dashboard/edit/' + ${trip.id}}" class="text-dark mx-2"><i class="fas fa-pen"></i></a>
-                                    <a th:href="@{'/dashboard/delete/' + ${trip.id}}" onclick="return confirm('Are you sure?')" class="text-danger mx-2"><i class="fas fa-trash"></i></a>
+                                    <!-- TOMBOL MATA (DETAIL) -->
+                                    <a th:href="@{'/dashboard/detail/' + ${trip.id}}" class="text-info mx-2" title="View Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <!-- TOMBOL EDIT (PEN) -->
+                                    <a th:href="@{'/dashboard/edit/' + ${trip.id}}" class="text-dark mx-2" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+
+                                    <!-- TOMBOL HAPUS (SAMPAH) -->
+                                    <a th:href="@{'/dashboard/delete/' + ${trip.id}}" onclick="return confirm('Are you sure?')" class="text-danger mx-2" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
                                 </div>
+                                <!-- ============================ -->
+
                             </div>
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center mb-3">
@@ -384,9 +389,22 @@
                             <div class="p-3">
                                 <h4 class="fw-bold text-white serif-font mb-2 searchable-title" style="font-size: 1.1rem;" th:text="${trip.judul}">Title</h4>
                                 <p class="text-muted small mb-0 text-truncate" style="opacity: 0.7;" th:text="${trip.deskripsi}">Desc</p>
+                                
+                                <!-- ============================ -->
+                                <!-- PERBAIKAN TIMELINE BUTTONS   -->
+                                <!-- ============================ -->
                                 <div class="mt-3 d-flex justify-content-end gap-2">
-                                    <a th:href="@{'/dashboard/edit/' + ${trip.id}}" class="btn btn-sm btn-outline-light rounded-circle" style="width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;"><i class="fas fa-pen" style="font-size:10px;"></i></a>
+                                    <!-- TOMBOL MATA -->
+                                    <a th:href="@{'/dashboard/detail/' + ${trip.id}}" class="btn btn-sm btn-outline-info rounded-circle" style="width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-eye" style="font-size:10px;"></i>
+                                    </a>
+                                    <!-- TOMBOL EDIT -->
+                                    <a th:href="@{'/dashboard/edit/' + ${trip.id}}" class="btn btn-sm btn-outline-light rounded-circle" style="width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-pen" style="font-size:10px;"></i>
+                                    </a>
                                 </div>
+                                <!-- ============================ -->
+
                             </div>
                         </div>
                     </div>
@@ -401,7 +419,6 @@
                 <div class="sticky-top" style="top: 100px; z-index: 1;">
                     
                     <!-- FITUR BARU: JAM MENYATU (SEAMLESS) -->
-                    <!-- Class diganti jadi clock-seamless agar tidak kena style kotak kaca -->
                     <div class="clock-seamless mb-4">
                         <div class="clock-greeting" id="greetingText">GOOD EVENING</div>
                         <div class="clock-time" id="localTime">12:00</div>
@@ -423,7 +440,7 @@
                         </div>
                     </div>
 
-                    <!-- WEATHER WIDGET (Tetap Kaca) -->
+                    <!-- WEATHER WIDGET -->
                     <div class="weather-card mb-4">
                         <div class="d-flex justify-content-between align-items-start position-relative" style="z-index: 2;">
                             <div>

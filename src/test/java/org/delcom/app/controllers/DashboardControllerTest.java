@@ -157,7 +157,52 @@ class DashboardControllerTest {
     }
 
     // ==========================================
-    // 2. TEST METHOD: showAddForm() & showEditForm()
+    // 2. [PERBAIKAN] TEST METHOD: viewDetail()
+    // Bagian ini yang sebelumnya hilang/kosong
+    // ==========================================
+
+    @Test
+    void testViewDetail_NotLoggedIn() {
+        when(authContext.getAuthUser()).thenReturn(null);
+        String view = dashboardController.viewDetail(UUID.randomUUID(), model);
+        assertEquals("redirect:/auth/login", view);
+    }
+
+    @Test
+    void testViewDetail_Success() {
+        UUID userId = UUID.randomUUID();
+        UUID tripId = UUID.randomUUID();
+        User user = new User(); user.setId(userId);
+        Perjalanan mockTrip = new Perjalanan();
+        
+        when(authContext.getAuthUser()).thenReturn(user);
+        when(perjalananService.getPerjalananById(userId, tripId)).thenReturn(mockTrip);
+
+        String view = dashboardController.viewDetail(tripId, model);
+
+        verify(model).addAttribute("trip", mockTrip);
+        verify(model).addAttribute("user", user);
+        assertEquals("view/detail-perjalanan", view);
+    }
+
+    @Test
+    void testViewDetail_NotFound_Or_Exception() {
+        UUID userId = UUID.randomUUID();
+        UUID tripId = UUID.randomUUID();
+        User user = new User(); user.setId(userId);
+
+        when(authContext.getAuthUser()).thenReturn(user);
+        // Simulasi jika data tidak ditemukan (throw exception)
+        when(perjalananService.getPerjalananById(userId, tripId)).thenThrow(new RuntimeException("Not Found"));
+
+        String view = dashboardController.viewDetail(tripId, model);
+        
+        // Harus redirect kembali ke dashboard jika error
+        assertEquals("redirect:/dashboard", view);
+    }
+
+    // ==========================================
+    // 3. TEST METHOD: showAddForm() & showEditForm()
     // ==========================================
 
     @Test
@@ -213,7 +258,7 @@ class DashboardControllerTest {
     }
 
     // ==========================================
-    // 3. TEST METHOD: savePerjalanan()
+    // 4. TEST METHOD: savePerjalanan()
     // ==========================================
 
     @Test
@@ -247,7 +292,7 @@ class DashboardControllerTest {
         String view = dashboardController.savePerjalanan(p, multipartFile, urlInput);
 
         assertEquals(urlInput, p.getFotoUtama());
-        // Verify ini memaksa kita menambahkan 'throws IOException'
+        // Verify ini memastikan kita tidak memanggil storage service
         verify(fileStorageService, never()).storeFile(any(), any()); 
         assertEquals("redirect:/dashboard", view);
     }
@@ -296,6 +341,8 @@ class DashboardControllerTest {
         UUID userId = UUID.randomUUID();
         User user = new User(); user.setId(userId);
         when(authContext.getAuthUser()).thenReturn(user);
+        
+        // Simulasi error saat menyimpan
         doThrow(new RuntimeException()).when(perjalananService).tambahPerjalanan(any(), any());
 
         String view = dashboardController.savePerjalanan(new Perjalanan(), null, null);
@@ -303,7 +350,7 @@ class DashboardControllerTest {
     }
 
     // ==========================================
-    // 4. TEST METHOD: deletePerjalanan()
+    // 5. TEST METHOD: deletePerjalanan()
     // ==========================================
 
     @Test
