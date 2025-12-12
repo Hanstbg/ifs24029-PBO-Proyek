@@ -21,6 +21,9 @@
     <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- Versions -->
     <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
     <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
     <maven.dependency.mockito.version>5.14.2</maven.dependency.mockito.version>
@@ -30,7 +33,7 @@
   </properties>
 
   <dependencies>
-    <!-- Dependencies sama seperti sebelumnya -->
+    <!-- Core Spring Boot -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -55,19 +58,27 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
+    
+    <!-- Additional Web/Template -->
     <dependency>
       <groupId>nz.net.ultraq.thymeleaf</groupId>
       <artifactId>thymeleaf-layout-dialect</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${maven.dependency.jakarta.servlet-api.version}</version>
+      <scope>provided</scope>
     </dependency>
+
+    <!-- Database -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- DevTools -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
@@ -118,7 +129,7 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- ByteBuddy -->
+    <!-- ByteBuddy (Explicit) -->
     <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
@@ -130,23 +141,16 @@
         <version>${maven.dependency.byte-buddy.version}</version>
         <scope>test</scope>
     </dependency>
-
-    <!-- Servlet -->
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>${maven.dependency.jakarta.servlet-api.version}</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-
       <!-- Spring Boot Plugin -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <!-- Explicit version helps Maven resolve the prefix -->
+        <version>${project.parent.version}</version>
         <configuration>
             <jvmArguments>
                 -XX:+EnableDynamicAgentLoading
@@ -154,7 +158,20 @@
                 -Dnet.bytebuddy.experimental=true
                 --add-opens java.base/java.lang=ALL-UNNAMED
             </jvmArguments>
+            <excludes>
+                <exclude>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                </exclude>
+            </excludes>
         </configuration>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>repackage</goal>
+                </goals>
+            </execution>
+        </executions>
       </plugin>
 
       <!-- Surefire Plugin -->
@@ -179,9 +196,6 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${maven.jacoco.plugin.version}</version>
-
-        <!-- FIX: PINDAHKAN KONFIGURASI KE SINI (GLOBAL) -->
-        <!-- Agar bisa dibaca baik oleh 'mvn verify' maupun 'mvn jacoco:check' -->
         <configuration>
             <rules>
                 <rule>
@@ -196,7 +210,6 @@
                 </rule>
             </rules>
         </configuration>
-
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -204,7 +217,6 @@
               <goal>prepare-agent</goal>
             </goals>
           </execution>
-
           <execution>
             <id>generate-report</id>
             <phase>test</phase>
@@ -212,7 +224,6 @@
               <goal>report</goal>
             </goals>
           </execution>
-
           <execution>
             <id>jacoco-check</id>
             <goals>
@@ -221,7 +232,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 </project>
